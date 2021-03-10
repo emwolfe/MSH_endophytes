@@ -1,5 +1,5 @@
 ---
-title: "MSH endophytes markdown"
+title: "Preliminary MSH endophytes markdown"
 output:
   html_document:
     df_print: paged
@@ -7,7 +7,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-Analysis of Sanger sequencing data from cultures isolated from Mount St. Helens (MSH) leaf samples collected July-Sept 2017 by ERW. Samples were surface-sterilized and either plated on malt extract agar plates or processed for storage at -80C (for direct extraction).
+Preliminary data analysis of Sanger sequencing data from cultures isolated from Mount St. Helens (MSH) leaf samples collected July-Sept 2017 by ERW. Samples were surface-sterilized and either plated on malt extract agar plates or processed for storage at -80C (for direct extraction). Analysis is being done for a poster for Alumni Night 2019.
 
 MAFFT v 7.427 on CIPRES
 
@@ -31,7 +31,7 @@ classify.otu(list=mafft.adj.fn.list, taxonomy=trimmed_.unique.UNITEv8_sh_97_s.wa
 
 ```
 
-List of libraries:
+Load libraries:
 ```{r load_libraries}
 library(vegan)
 library(ggplot2)
@@ -43,16 +43,6 @@ library(phyloseq) #if not installed already, should be done through Bioconductor
 #install.packages("remotes")
 #remotes::install_github("jfq3/ggordiplots")
 library(ggordiplots)
-library(ggmap)
-library(ggrepel)
-library(gridExtra)
-library(tigris)
-library(cowplot)
-library(ggsn)
-library(tmap)
-library(sf)
-library(sp)
-
 
 
 ```
@@ -60,6 +50,7 @@ library(sp)
 
 Now import the data:
 ```{r import}
+#setwd("C:\\Users\\emyle\\Dropbox\\School\\Data\\Projects\\MSH\\MSH_endophytes")
 
 PP_com <- read.csv("adj.com.csv", row.names = 1)
 head(PP_com[,1:5])
@@ -1089,11 +1080,11 @@ dev.off()
 
 maps!
 ```{r}
-gps <- read.csv("formap.csv")
+gps <- read.csv("C:/Users/emyle/Dropbox/School/Data/Projects/MSH/GPS points/formap.csv")
 head(gps)
 
 #for satellite imagery:
-#API key is required now
+#bullshit API key is required now
 #made an account but had to set up billing
 
 library(ggmap)
@@ -1114,7 +1105,7 @@ mean(46.239,46.265)
 
 MSHPP_center <- c(lon=-122.173, lat=46.249)
 
-register_google(key="register for your own")
+register_google(key="AIzaSyCankhCsiF7SZ71OQJX-qW1XHbPq6B080g")
 zoom15 <- get_map(location=MSHPP_center,zoom=15, maptype="satellite")
 zoom14 <- get_map(msh_bb,zoom=15, maptype="satellite")
 
@@ -1218,5 +1209,28 @@ jpeg(filename = "overview_zoom15.jpeg",units="in",width =7, height=7, res=300) #
 gg_inset_map2
 dev.off()
 
+
+
+
+# grab a center/zoom map and compute its bounding box
+gc <- geocode("white house, washington dc")
+map <- get_map(gc)
+(bb <- attr(zoom14, "bb"))
+(bbox <- bb2bbox(bb))
+
+# use the bounding box to get a stamen map
+stamMap <- get_stamenmap(bbox)
+
+ggmap(map) +
+  geom_point(
+    aes(x = lon, y = lat),
+    data = gc, colour = "red", size = 3
+  )
+
+ggmap(stamMap) +
+  geom_point(
+    aes(x = lon, y = lat),
+    data = gc, colour = "red", size = 3
+  )
 
 ```
